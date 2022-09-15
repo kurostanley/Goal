@@ -42,7 +42,7 @@ const db = mysql.createConnection({
  * @return {array} goal list
  */ 
 router.get('/:userId/goals/', (req, res) => {
-    let sql = 'SELECT * FROM goals';   
+    let sql = `SELECT * FROM goals WHERE user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
         if(err) throw err;
         console.log(results);
@@ -96,9 +96,7 @@ router.put('/:userId/goals/:goalId', (req, res) => {
 router.get('/:userId/goals/:goalId', (req, res) => {
     let sql = `SELECT * FROM subgoals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
-        if(err) throw err;
-        console.log(results);
-        
+        if(err) throw err;        
         res.send(results)
     })
 })
