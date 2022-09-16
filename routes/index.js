@@ -91,14 +91,7 @@ router.post('/register', (req, res) => {
 router.post('/login',
   passport.authenticate('local'),
   function(req, res) {
-    console.log(req.session)
     res.redirect('/api/user/' + req.session.passport.user + '/goals');
-    // let userId;
-    // let sql = `SELECT * FROM users WHERE user_email = '${req.body.userEmail}'`;
-    // let query = db.query(sql, (err, result) => {
-    //    userId = result[0].user_id
-    //    res.redirect('/api/user/' + userId + '/goals');
-    // })
 })
 
 

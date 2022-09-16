@@ -26,11 +26,11 @@ const db = mysql.createConnection({
         goal_description: req.body.goalDescription,
         goal_completed: false
     };
-    console.log(req.body);
     let sql = 'INSERT INTO goals SET ?';   // ?means the db.query second param
     let query = db.query(sql, goal, (err, result) => {
         if(err) throw err;
-        console.log(result.insertId);
+        let sql2 = `INSERT INTO goalOrderList SET goal_id = ${result.insertId}`
+        let query2 = db.query(sql2, (err, result) => {});
         res.send(result);
     })
 })
@@ -43,10 +43,10 @@ const db = mysql.createConnection({
  * @return {array} goal list
  */ 
 router.get('/:userId/goals/',ensureAuthenticated, (req, res) => {
-    let sql = `SELECT * FROM goals WHERE user_id = ${req.params.userId}`;   
+    //
+    let sql = `SELECT * FROM goals JOIN goalOrderList ON goals.goal_id = goalOrderList.goal_id WHERE user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
         if(err) throw err;
-        console.log(results);
         res.send(results)
     })
 })
@@ -59,11 +59,43 @@ router.get('/:userId/goals/',ensureAuthenticated, (req, res) => {
  * @return {JSON} goal delete sucess info
  */ 
 router.delete('/:userId/goals/:goalId', ensureAuthenticated, (req, res) => {
-    let sql = `DELETE FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
-    let query = db.query(sql, (err, result) => {
+    let sql1 = `SELECT goal_OrderId FROM goalOrderList WHERE goal_id = ${req.params.goalId}`
+    let query1 = db.query(sql1, (err, result) => {
         if(err) throw err;
-        console.log(result);
-        res.send(result)
+        const deleteItemOrder = result[0].goal_OrderId;
+        let theLastOrderId = 0;
+        
+        let sql2 = `DELETE FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}; `;   
+        let query2 = db.query(sql2, (err, result) => {
+            if(err) throw err;
+        })
+        // delete the order item
+        let sql3 = `DELETE FROM goalOrderList WHERE goal_orderId = ${deleteItemOrder} `;
+        let query3 = db.query(sql3, (err, result) => {
+            if(err) throw err;
+        })
+
+        // Rearrange new order
+        // 1 count 
+        let sql4 = `SELECT COUNT(goal_orderId) FROM goalOrderList;`;
+        let query4 = db.query(sql4,  (err, result) => {
+            if(err) throw err;
+            theLastOrderId = result[0]['COUNT(goal_orderId)'];
+
+            for (let i = deleteItemOrder + 1; i <= theLastOrderId + 1; i++){
+                // Find the Id of the goal_ording
+                let sql5 = `SELECT * FROM goalOrderList WHERE goal_orderId = ${i}`;
+                db.query(sql5, (err, result) => {
+                    let currentGoalId = result[0].goal_id ;
+                    let sql6 = `UPDATE goalOrderList SET goal_orderId = ${i - 1} WHERE goal_id = ${currentGoalId}`
+                    db.query(sql6, (err, result) => {
+                        console.log(currentGoalId);
+                   })
+                })
+            }
+        })
+
+        res.send('hihi')
     })
 })
 
