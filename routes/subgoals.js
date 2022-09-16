@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const { ensureAuthenticated  }= require('../config/auth');
 
 const db = mysql.createConnection({
     host     : 'localhost',
@@ -17,7 +18,7 @@ const db = mysql.createConnection({
  * @param {num} ?subGoalId
  * @return {JSON} goal delete sucess info
  */ 
- router.delete('/:userId/goals/:goalId/subGoals/:subGoalId', (req, res) => {
+ router.delete('/:userId/goals/:goalId/subGoals/:subGoalId',ensureAuthenticated, (req, res) => {
     let sql = `DELETE FROM subgoals WHERE subgoal_name = ${req.params.goalId} AND user_id = ${req.params.userId} AND subgoal_id = ${req.params.subGoalId}`;   
     let query = db.query(sql, (err, result) => {
         if(err) throw err;
@@ -37,7 +38,7 @@ const db = mysql.createConnection({
  * @param {boolean} subGoalCompleted
  * @return {JSON} subGoal delete sucess info
  */ 
- router.put('/:userId/goals/:goalId/subGoals/:subGoalId', (req, res) => {
+ router.put('/:userId/goals/:goalId/subGoals/:subGoalId', ensureAuthenticated,(req, res) => {
     let sql = `UPDATE subgoals SET subgoal_name = '${req.body.subGoalName}',subgoal_description = '${req.body.subGoalDescription}',subgoal_predict_time= ${req.body.subGoalPredictTime}, subgoal_completed = ${req.body.subGoalCompleted} WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId} AND subgoal_id = ${req.params.subGoalId}`;   
     let query = db.query(sql, (err, result) => {
         if(err) throw err;

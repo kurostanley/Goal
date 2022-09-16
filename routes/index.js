@@ -50,7 +50,6 @@ router.post('/register', (req, res) => {
         let sql = `SELECT * FROM users WHERE user_email = '${userEmail}'`;   
         let query = db.query(sql, (err, results) => {
             if(err) throw err;
-            console.log(results)
             if(results.length != 0){
                 errors.push({ msg: 'Email is already registered'});
                 res.send({
@@ -81,7 +80,6 @@ router.post('/register', (req, res) => {
                         let query = db.query(sql2, hash, (err, result) => {
                             if(err) throw err;
                             req.flash('success_msg', 'You are now registered and can log in')
-                            res.send('login success');
                         })
                     });
             })
@@ -90,31 +88,18 @@ router.post('/register', (req, res) => {
     }
 })   
 
-// Login Handle
-// router.post('/login', (req, res, next) => {
-//     let userId;
-//     let sql = `SELECT * FROM users WHERE user_email = '${req.body.userEmail}'`
-//     let query = db.query(sql, (err, result) => {
-//         userId = result[0].user_id;
-//     })
-//     passport.authenticate('local', {
-//         successRedirect:`/api/user/${userId}/goals`,
-//         failureRedirect:'/api/login',
-//         failureFlash: true
-//     })(req, res, next);
-// });
-
 router.post('/login',
   passport.authenticate('local'),
   function(req, res) {
-    let userId;
-    let sql = `SELECT * FROM users WHERE user_email = '${req.body.userEmail}'`;
-    let query = db.query(sql, (err, result) => {
-       userId = result[0].user_id
-    })
-    console.log(userId)
-    res.redirect('/users/' + userId + '/goals');
-  })
+    console.log(req.session)
+    res.redirect('/api/user/' + req.session.passport.user + '/goals');
+    // let userId;
+    // let sql = `SELECT * FROM users WHERE user_email = '${req.body.userEmail}'`;
+    // let query = db.query(sql, (err, result) => {
+    //    userId = result[0].user_id
+    //    res.redirect('/api/user/' + userId + '/goals');
+    // })
+})
 
 
 

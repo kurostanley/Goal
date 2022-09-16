@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const { ensureAuthenticated  }= require('../config/auth');
 
 const db = mysql.createConnection({
     host     : 'localhost',
@@ -18,7 +19,7 @@ const db = mysql.createConnection({
  * @param {string} goalDescription
  * @return {JSON} goal creatsucess info
  */ 
- router.post('/:userId/goals/', (req, res) => {
+ router.post('/:userId/goals/',ensureAuthenticated, (req, res) => {
     let goal = {
         user_id: req.params.userId,
         goal_name: req.body.goalName , 
@@ -41,7 +42,7 @@ const db = mysql.createConnection({
  * @param {num} ?userId
  * @return {array} goal list
  */ 
-router.get('/:userId/goals/', (req, res) => {
+router.get('/:userId/goals/',ensureAuthenticated, (req, res) => {
     let sql = `SELECT * FROM goals WHERE user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
         if(err) throw err;
@@ -57,7 +58,7 @@ router.get('/:userId/goals/', (req, res) => {
  * @param {num} ?goalId
  * @return {JSON} goal delete sucess info
  */ 
-router.delete('/:userId/goals/:goalId', (req, res) => {
+router.delete('/:userId/goals/:goalId', ensureAuthenticated, (req, res) => {
     let sql = `DELETE FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, result) => {
         if(err) throw err;
@@ -76,7 +77,7 @@ router.delete('/:userId/goals/:goalId', (req, res) => {
  * @param {boolean} goalCompleted
  * @return {JSON} goal update sucess info
  */ 
-router.put('/:userId/goals/:goalId', (req, res) => {
+router.put('/:userId/goals/:goalId', ensureAuthenticated, (req, res) => {
     let sql = `UPDATE goals SET goal_name = '${req.body.goalName}', goal_description = '${req.body.goalDescription}',goal_completed = ${req.body.goalCompleted}  WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, result) => {
         if(err) throw err;
@@ -93,7 +94,7 @@ router.put('/:userId/goals/:goalId', (req, res) => {
  * @param {num} ?goalId
  * @return {array} subgoals
  */ 
-router.get('/:userId/goals/:goalId', (req, res) => {
+router.get('/:userId/goals/:goalId', ensureAuthenticated,(req, res) => {
     let sql = `SELECT * FROM subgoals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
         if(err) throw err;        
@@ -111,7 +112,7 @@ router.get('/:userId/goals/:goalId', (req, res) => {
  * @param {int} subGoalPredictTime
  * @return {JSON} subgoal creat sucess info
  */ 
- router.post('/:userId/goals/:goalId', (req, res) => {
+ router.post('/:userId/goals/:goalId', ensureAuthenticated,(req, res) => {
     let subgoal = {
         user_id: req.params.userId,
         goal_id: req.params.goalId,

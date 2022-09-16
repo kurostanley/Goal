@@ -47,16 +47,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Express Session
-app.use(session({
-    secret: 'secert',
-    resave: true,
-    saveUninitialized: true
-}))
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Connect flash
 app.use(flash());
@@ -66,7 +56,7 @@ app.use((req, res, next) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
     res.locals.error = req.flash('error');
-    res.locals.userid = req.flash('user_id');
+    res.locals.userId = req.flash('userId');
     next();
 })
 
