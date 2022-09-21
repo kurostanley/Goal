@@ -55,13 +55,16 @@ const db2 = mysql2.createConnection({
  * @param {num} ?userId
  * @return {array} goal list
  */ 
-router.get('/:userId/goals/',ensureAuthenticated, (req, res) => {
-    //
-    let sql = `SELECT * FROM goals WHERE goals.user_id = ${req.params.userId}`;   
-    let query = db.query(sql, (err, results) => {
-        if(err) throw err;
-        res.send(results)
-    })
+router.get('/:userId/goals/',ensureAuthenticated,async(req, res) => {
+    const con = await db2;
+    try{
+        let sql = `SELECT * FROM goals WHERE goals.user_id = ${req.params.userId}`;   
+        let query = await con.query(sql);
+        res.send(query);
+    }
+    catch(e){
+        res.send(e);
+    }
 })
 
 // Delete a goal
