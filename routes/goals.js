@@ -143,8 +143,30 @@ router.put('/:userId/goals/:goalId', ensureAuthenticated, async (req, res) => {
  router.put('/:userId/goals/:goalId/updateOrder', ensureAuthenticated, async (req, res) => {
     try{
         const con = await db2;
-        let sql = `UPDATE goalOrderList SET goal_orderId = ${req.body.GoadTo}  WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
-        let query = await con.query(sql);
+        let GoadTo = req.body.GoadTo;
+
+        let sql1 = `SELECT goal_order_id FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`
+        let query1 = await con.query(sql1);
+
+        const currentItemOrder = query1[0][0]['goal_order_id'];
+
+        if(currentItemOrder > GoadTo){
+            for(let i = currentItemOrder - 1; i >= GoadTo; i--){
+                console.log(i);
+                let sql2 = `UPDATE goals SET goal_order_id = ${i+1} WHERE goal_order_id = ${i} AND user_id = ${req.params.userId}`;   
+                let query = await con.query(sql2);
+            }
+        }
+        else{
+            for(let i = currentItemOrder + 1; i <= GoadTo; i++){
+                let sql2 = `UPDATE goals SET goal_order_id = ${i-1} WHERE goal_order_id = ${i} AND user_id = ${req.params.userId}`;   
+                let query = await con.query(sql2);
+            }
+        }
+
+        let sql3 = `UPDATE goals SET goal_order_id = ${GoadTo}  WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`;   
+        let query = await con.query(sql3);
+        
         res.send([{msg : "Upate Success"}])
     }
     catch(e){res.send(e)}
