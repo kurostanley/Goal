@@ -70,5 +70,5 @@ app.use('/api/user', require('./routes/subgoals'));
 const PORT = process.env.port || 3000;
 
 app.listen(PORT, () => {
-    console.log('server start on 3000')
+    console.log(`server start on ${PORT}`)
 })
