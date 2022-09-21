@@ -5,14 +5,14 @@ const mysql2 = require('mysql2/promise');
 const { ensureAuthenticated  }= require('../config/auth');
 
 const db = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });
 const db2 = mysql2.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });
@@ -27,20 +27,25 @@ const db2 = mysql2.createConnection({
  * @param {string} goalDescription
  * @return {JSON} goal creatsucess info
  */ 
- router.post('/:userId/goals/',ensureAuthenticated, (req, res) => {
-    let goal = {
-        user_id: req.params.userId,
-        goal_name: req.body.goalName , 
-        goal_description: req.body.goalDescription,
-        goal_completed: false
-    };
-    let sql = 'INSERT INTO goals SET ?';   // ?means the db.query second param
-    let query = db.query(sql, goal, (err, result) => {
-        if(err) throw err;
-        let sql2 = `INSERT INTO goalOrderList SET goal_id = ${result.insertId}, user_id = ${req.params.userId};`
-        let query2 = db.query(sql2, (err, result) => {});
-        res.send(result);
-    })
+ router.post('/:userId/goals/',ensureAuthenticated, async (req, res) => {
+    const con = await db2;
+    try{
+        let sql1 = `SELECT COUNT(goal_id) FROM goals WHERE user_id = ${req.params.userId};`;
+        let query1 = await con.query(sql1);
+        //console.log(query1[0][0]['COUNT(goal_id)'])
+        const itemNum = query1[0][0]['COUNT(goal_id)'];
+        let goal = {
+            goal_order_id: itemNum + 1,
+            user_id: req.params.userId,
+            goal_name: req.body.goalName , 
+            goal_description: req.body.goalDescription,
+            goal_completed: false
+        };
+        let sql = 'INSERT INTO goals SET ?';   // ?means the db.query second param
+        let query = await con.query(sql, goal);
+        res.send([{msg:'Update success'}])
+    }
+    catch(e) {res.send(e);};
 })
 
 
@@ -52,7 +57,7 @@ const db2 = mysql2.createConnection({
  */ 
 router.get('/:userId/goals/',ensureAuthenticated, (req, res) => {
     //
-    let sql = `SELECT * FROM goals JOIN goalOrderList ON goals.goal_id = goalOrderList.goal_id AND goals.user_id = goalOrderList.user_id WHERE goals.user_id = ${req.params.userId}`;   
+    let sql = `SELECT * FROM goals WHERE goals.user_id = ${req.params.userId}`;   
     let query = db.query(sql, (err, results) => {
         if(err) throw err;
         res.send(results)
@@ -70,34 +75,32 @@ router.delete('/:userId/goals/:goalId', ensureAuthenticated, async (req, res) =>
     const con = await db2;
     try{
         // Search the goal_OrderId of the deleted goalId
-        let sql1 = `SELECT goal_OrderId FROM goalOrderList WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`
+        let sql1 = `SELECT goal_order_id FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}`
         let query1 = await con.query(sql1);
 
-        const deleteItemOrder = query1[0][0].goal_OrderId;
+        const deleteItemOrder = query1[0][0]['goal_order_id'];
 
         // Delete item form goals table
         let sql2 = `DELETE FROM goals WHERE goal_id = ${req.params.goalId} AND user_id = ${req.params.userId}; `;   
         let query2 = await con.query(sql2);
 
-        // Delete item from goalOrderList table 
-        let sql3 = `DELETE FROM goalOrderList WHERE goal_orderId = ${deleteItemOrder} AND user_id = ${req.params.userId};`;
-        let query3 = await con.query(sql3);
-
         // Rearrange new order
         // 1 count 
         let theLastOrderId = 0;
-        let sql4 = `SELECT COUNT(goal_orderId) FROM goalOrderList; AND user_id = ${req.params.userId};`;
+        let sql4 = `SELECT COUNT(goal_order_id) FROM goals WHERE user_id = ${req.params.userId};`;
         let query4 = await con.query(sql4)
 
-        theLastOrderId = query4[0][0]['COUNT(goal_orderId)'];
+        theLastOrderId = query4[0][0]['COUNT(goal_order_id)'];
+        console.log(theLastOrderId);
+        console.log(deleteItemOrder);
 
         for (let i = deleteItemOrder + 1; i <= theLastOrderId + 1; i++){
             
             // Find the Id of the goal_ording
-            let sql5 = `SELECT * FROM goalOrderList WHERE goal_orderId = ${i} AND user_id = ${req.params.userId};`;
+            let sql5 = `SELECT * FROM goals WHERE goal_order_id = ${i} AND user_id = ${req.params.userId};`;
             let query5 = await con.query(sql5)
             let currentGoalId = query5[0][0].goal_id ;
-            let sql6 = `UPDATE goalOrderList SET goal_orderId = ${i - 1} WHERE goal_id = ${currentGoalId} AND user_id = ${req.params.userId};`
+            let sql6 = `UPDATE goals SET goal_order_id = ${i - 1} WHERE goal_id = ${currentGoalId} AND user_id = ${req.params.userId};`
             await con.query(sql6)
         }     
         res.send([{msg: 'Delete Success'}]);
@@ -132,7 +135,6 @@ router.put('/:userId/goals/:goalId', ensureAuthenticated, async (req, res) => {
  * @METH PUT
  * @param {num} ?userId
  * @param {num} ?goalId
- * @param {num} GoadFrom
  * @param {num} GoadTo
  * @return {JSON} goal update sucess info
  * First index = 1

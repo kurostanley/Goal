@@ -6,8 +6,8 @@ const passport = require('passport')
 
 
 const db = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });
@@ -88,6 +88,15 @@ router.post('/register', (req, res) => {
     }
 })   
 
+
+// Login
+/**
+ * @METH POST
+ * @param {string} userEmail
+ * @param {string} userPassword
+ * @return {JSON} user creatsuccess info
+ */ 
+
 router.post('/login',
   passport.authenticate('local'),
   function(req, res) {
@@ -100,7 +109,6 @@ router.post('/login',
 // Logout
 /**
  * @METH GET
- * 
  */ 
 router.get('/logout', (req, res, next) => {
     req.logout(function(err) {

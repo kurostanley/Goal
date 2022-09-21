@@ -5,14 +5,14 @@ const mysql2 = require('mysql2/promise');
 const { ensureAuthenticated  }= require('../config/auth');
 
 const db = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });
 const db2 = mysql2.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });

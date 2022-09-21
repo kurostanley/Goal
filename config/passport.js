@@ -3,8 +3,8 @@ const mysql = require('mysql');
 const bcrypt = require ('bcryptjs');
 
 const db = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
+    host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
+    user     : 'admin',
     password : process.env.password,
     database : 'GoalDb'
 });
