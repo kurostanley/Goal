@@ -202,9 +202,14 @@ router.get('/:userId/goals/:goalId', ensureAuthenticated,async (req, res) => {
  router.post('/:userId/goals/:goalId', ensureAuthenticated, async(req, res) => {
     try{
         const con = await db2;
+        let sql1 = `SELECT COUNT(subgoal_id) FROM subgoals WHERE user_id = ${req.params.userId} AND goal_id = ${req.params.goalId};`;
+        let query1 = await con.query(sql1);
+        const itemNum = query1[0][0]['COUNT(goal_id)'];
+
         let subgoal = {
             user_id: req.params.userId,
             goal_id: req.params.goalId,
+            subgoal_order_id: itemNum + 1,
             subgoal_name: req.body.subGoalName, 
             subgoal_description: req.body.subGoalDescription,
             subgoal_predict_time: req.body.subGoalPredictTime,
