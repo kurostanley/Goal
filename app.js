@@ -67,7 +67,7 @@ app.use('/api', require('./routes/index'));
 app.use('/api/user', require('./routes/goals'));
 app.use('/api/user', require('./routes/subgoals'));
 
-const PORT = process.env.port || 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`server start on ${PORT}`)
