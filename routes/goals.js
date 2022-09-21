@@ -60,7 +60,7 @@ router.get('/:userId/goals/',ensureAuthenticated,async(req, res) => {
     try{
         let sql = `SELECT * FROM goals WHERE goals.user_id = ${req.params.userId}`;   
         let query = await con.query(sql);
-        res.send(query[0][0]);
+        res.send(query[0]);
     }
     catch(e){
         res.send(e);
