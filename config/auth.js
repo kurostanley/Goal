@@ -5,7 +5,7 @@ module.exports = {
             return next();
         }
         req.flash('error_msg', 'Please log in to view this resource');
-        res.send('no authentication');
+        res.send([{msg: "no authentication"}]);
     },
     // ensureAuthenticatedInWelcome: function(req, res, next){
     //     if(!req.isAuthenticated()){
