@@ -5,6 +5,8 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 const bodyParser = require("body-parser");
+const cors = require('cors');
+
 
 const app = express();
 
@@ -28,6 +30,9 @@ db.connect((err) => {
 require('./config/passport')(passport);
 
 require('dotenv').config()
+
+// Use Cors
+app.use(cors())
 
 // Express Session
 app.use(session({

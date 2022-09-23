@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
 const mysql2 = require('mysql2/promise');
-const { ensureAuthenticated  }= require('../config/auth');
+const { ensureAuthenticated }= require('../config/auth');
 
 const db = mysql.createConnection({
     host     : 'goaldb.cf3qwkt8ruuo.ap-northeast-1.rds.amazonaws.com',
