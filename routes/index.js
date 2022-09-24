@@ -100,6 +100,7 @@ router.post('/register', (req, res) => {
 router.post('/login',
   passport.authenticate('local'),
   function(req, res) {
+    //res.send([{msg: "you are login"}])
     res.redirect('/api/user/' + req.session.passport.user + '/goals');
 })
 

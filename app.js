@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 
 
+
 const app = express();
 
 // Create connection
@@ -31,15 +32,28 @@ require('./config/passport')(passport);
 
 require('dotenv').config()
 
+
+
 // Use Cors
-app.use(cors())
+app.use(cors({
+    origin:"http://127.0.0.1:5500",
+    credentials: true
+}))
+
+app.enable('trust proxy')
+
 
 // Express Session
 app.use(session({
     secret: 'secert',
     resave: true,
-    saveUninitialized: true
-}))
+    saveUninitialized: true,
+    cookie: { 
+        httpOnly: true,
+        // secure: true,
+        // sameSite: "none"
+    }
+  }))
 
 
 // Passport middleware
@@ -49,7 +63,7 @@ app.use(passport.session());
 
 
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+//app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.urlencoded({extended: true}));
 
 
@@ -64,7 +78,6 @@ app.use((req, res, next) => {
     res.locals.userId = req.flash('userId');
     next();
 })
-
 
 
 // Set Router
