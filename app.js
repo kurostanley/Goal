@@ -6,10 +6,29 @@ const session = require('express-session');
 const passport = require('passport');
 const bodyParser = require("body-parser");
 const cors = require('cors');
+const https = require('https')
+const fs = require('fs')
+
+
 
 
 
 const app = express();
+
+
+app.get('/', (req, res) => {
+    res.send("IT'S WORKING!")
+})
+
+const httpsOptions = {
+    key: fs.readFileSync('./security/cert.key'),
+    cert: fs.readFileSync('./security/cert.pem')
+}
+const server = https.createServer(httpsOptions, app)
+    .listen(port, () => {
+        console.log('server running at ' + port)
+    })
+
 
 // Create connection
 const db = mysql.createConnection({
@@ -40,18 +59,18 @@ app.use(cors({
     credentials: true
 }))
 
-app.enable('trust proxy')
+app.set('trust proxy', 1);
 
 
 // Express Session
 app.use(session({
     secret: 'secert',
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: { 
         httpOnly: true,
         // secure: true,
-        // sameSite: "none"
+        /// sameSite: "none"
     }
   }))
 
