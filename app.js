@@ -16,19 +16,6 @@ const fs = require('fs')
 const app = express();
 
 
-app.get('/', (req, res) => {
-    res.send("IT'S WORKING!")
-})
-
-const httpsOptions = {
-    key: fs.readFileSync('./security/cert.key'),
-    cert: fs.readFileSync('./security/cert.pem')
-}
-const server = https.createServer(httpsOptions, app)
-    .listen(port, () => {
-        console.log('server running at ' + port)
-    })
-
 
 // Create connection
 const db = mysql.createConnection({
@@ -59,7 +46,7 @@ app.use(cors({
     credentials: true
 }))
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 
 
 // Express Session
@@ -69,8 +56,10 @@ app.use(session({
     saveUninitialized: false,
     cookie: { 
         httpOnly: true,
-        // secure: true,
-        /// sameSite: "none"
+        path:'/',
+        secure: true,
+        sameSite: "none",
+        maxAge:3600000
     }
   }))
 
@@ -106,6 +95,13 @@ app.use('/api/user', require('./routes/subgoals'));
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`server start on ${PORT}`)
-})
+const httpsOptions = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+}    
+const server = https.createServer(httpsOptions, app).listen(3000)
+
+
+// app.listen(PORT, () => {
+//     console.log(`server start on ${PORT}`)
+// })
