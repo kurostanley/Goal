@@ -9,26 +9,7 @@ const cors = require('cors');
 const https = require('https')
 const fs = require('fs')
 
-
-
-
-
 const app = express();
-
-
-app.get('/', (req, res) => {
-    res.send("IT'S WORKING!")
-})
-
-const httpsOptions = {
-    key: fs.readFileSync('./security/cert.key'),
-    cert: fs.readFileSync('./security/cert.pem')
-}
-const server = https.createServer(httpsOptions, app)
-    .listen(port, () => {
-        console.log('server running at ' + port)
-    })
-
 
 // Create connection
 const db = mysql.createConnection({
@@ -53,25 +34,36 @@ require('dotenv').config()
 
 
 
-// Use Cors
-app.use(cors({
-    origin:"https://localhost:5000",
-    credentials: true
-}))
+// // Use Cors
+// app.use(cors({
+//     origin:"https://localhost:5000",
+//     credentials: true
+// }))
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://localhost:5000'); // * allows all, or you can limit by domain
+    res.setHeader('Access-Control-Allow-Methods', '*'); // Set which header methods you want to allow (GET,POST,PUT,DELETE,OPTIONS)
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // These 2 are recommended
+    res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie'); // Required to allow the returned cookie to be set
+	res.setHeader('Access-Control-Allow-Credentials', 'true'); // Required to allow auth credentials
+    next();
+});
 
 // Express Session
 app.use(session({
     secret: 'secert',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        httpOnly: true,
-        // secure: true,
-        /// sameSite: "none"
-    }
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+		path: "/",
+		httpOnly: false, // Set this so it can be accessed via document.cookie in javascript
+		secure: true, // Required when using sameSite:'none'
+		sameSite: 'none', // Set this to allow access via different domians
+		maxAge: 3600000 // Set cookie to last 1 hour
+	}
   }))
 
 
@@ -104,8 +96,13 @@ app.use('/api', require('./routes/index'));
 app.use('/api/user', require('./routes/goals'));
 app.use('/api/user', require('./routes/subgoals'));
 
+
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`server start on ${PORT}`)
-})
+// Sets up the server as HTTPS using certificates
+const httpsOptions = {
+	key: fs.readFileSync('key.pem'),
+	cert: fs.readFileSync('cert.pem')
+}
+const server = https.createServer(httpsOptions, app).listen(PORT);
+
