@@ -35,22 +35,22 @@ require('dotenv').config()
 
 
 // Use Cors
-app.use(cors({
-    origin:"https://localhost:5000",
-    credentials: true
-}))
+// app.use(cors({
+//     origin:"https://localhost:5000",
+//     credentials: true
+// }))
 
 // app.set('trust proxy', 1);
 
 
-// app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', 'https://localhost:5000'); // * allows all, or you can limit by domain
-//     res.setHeader('Access-Control-Allow-Methods', '*'); // Set which header methods you want to allow (GET,POST,PUT,DELETE,OPTIONS)
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // These 2 are recommended
-//     res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie'); // Required to allow the returned cookie to be set
-// 	res.setHeader('Access-Control-Allow-Credentials', 'true'); // Required to allow auth credentials
-//     next();
-// });
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://localhost:5000'); // * allows all, or you can limit by domain
+    res.setHeader('Access-Control-Allow-Methods', '*'); // Set which header methods you want to allow (GET,POST,PUT,DELETE,OPTIONS)
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // These 2 are recommended
+    res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie'); // Required to allow the returned cookie to be set
+	res.setHeader('Access-Control-Allow-Credentials', 'true'); // Required to allow auth credentials
+    next();
+});
 
 // Express Session
 app.use(session({
