@@ -58,13 +58,13 @@ app.set('trust proxy', 1)
 // Express Session
 app.use(session({
     secret: 'secert',
-    resave: true,
+    resave: false,
     saveUninitialized: true,
     cookie: {
 		path: "/",
 		httpOnly: false, // Set this so it can be accessed via document.cookie in javascript
-		//secure: true, // Required when using sameSite:'none'
-		//sameSite: 'none', // Set this to allow access via different domians
+		secure: true, // Required when using sameSite:'none'
+		sameSite: 'none', // Set this to allow access via different domians
 		maxAge: 3600000 // Set cookie to last 1 hour
 	}
   }))
