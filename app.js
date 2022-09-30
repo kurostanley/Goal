@@ -52,6 +52,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.set('trust proxy', 1)
+
+
 // Express Session
 app.use(session({
     secret: 'secert',
