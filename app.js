@@ -43,7 +43,7 @@ require('dotenv').config()
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://localhost:5000'); // * allows all, or you can limit by domain
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5000'); // * allows all, or you can limit by domain
     res.setHeader('Access-Control-Allow-Methods', '*'); // Set which header methods you want to allow (GET,POST,PUT,DELETE,OPTIONS)
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // These 2 are recommended
     res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie'); // Required to allow the returned cookie to be set
